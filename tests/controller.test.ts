@@ -22,7 +22,7 @@ describe('Controller', () => {
             options: {
                 id: { type: 'number' },
                 name: { type: 'string' },
-            },
+            }
         };
 
         runMetadataTests(
@@ -48,7 +48,7 @@ describe('Controller', () => {
             options: {
                 id: { type: 'number' },
                 name: { type: 'string' },
-            },
+            }
         };
 
         runMetadataTests(

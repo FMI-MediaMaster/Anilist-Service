@@ -14,9 +14,9 @@
       "@app": ["src/app"],
       "@routes": ["src/routes/index"],
       "@routes/*": ["src/routes/*"],
-      "@schemas/*": ["src/schemas/*"],
       "@services/*": ["src/services/*"],
       "@controllers/*": ["src/controllers/*"],
+      "@types": ["src/types/index"],
     }
   },
   "include": ["src"],

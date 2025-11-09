@@ -1,10 +1,8 @@
-import userController from '@controllers/user';
 import { Router } from 'express';
-import { createRouter } from '@media-master/express-crud-router';
+import anilistController from '@controllers/anilist';
 
 const routes: Router = Router();
 
-routes.use('/users', createRouter(userController));
+routes.get('/:type/:method', anilistController.handler);
 
 export default routes;
-

@@ -1,13 +1,17 @@
 meta {
-  name: Read Users
+  name: Get Options
   type: http
   seq: 1
 }
 
 get {
-  url: {{url}}/users
+  url: {{url}}/anime/options?name=Inazuma
   body: none
   auth: inherit
+}
+
+params:query {
+  name: Inazuma
 }
 
 settings {
