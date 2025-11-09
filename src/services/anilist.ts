@@ -2,11 +2,14 @@ import fetch from 'node-fetch';
 import config from '@media-master/load-dotenv';
 import errors from '@media-master/http-errors';
 import {
-    MediaOption,
+    Edge,
     Query,
-    SearchResult,
+    MediaOption,
+    OptionsSearchResult,
     ResponseBody,
-    SearchResponse,
+    MediaRecommendation,
+    OptionsSearchResponse,
+    RecommendationsSearchResponse,
 } from '@types';
 
 export default class AnilistService {
@@ -61,7 +64,7 @@ export default class AnilistService {
         return input;
     }
 
-    private mapSearchResult = (media: SearchResult): MediaOption => {
+    private mapSearchResultOptions = (media: OptionsSearchResult): MediaOption => {
         // Prefer the English title, fallback to the Japanese one
         const title = this.removeBadItems(media.title?.english ?? media.title?.romaji ?? '');
         const year = media.startDate?.year;
@@ -69,6 +72,17 @@ export default class AnilistService {
         return {
             id: media.id,
             name: `${title} (${year})`.trim(),
+        };
+    };
+
+    private mapSearchResultRecommendations = (edge: Edge): MediaOption => {
+        const media: MediaRecommendation = edge.node?.mediaRecommendation;
+        // Prefer the English title, fallback to the Japanese one
+        const title = this.removeBadItems(media.title?.english ?? media.title?.romaji ?? '');
+
+        return {
+            id: media.id,
+            name: `${title}`.trim(),
         };
     };
 
@@ -89,9 +103,9 @@ export default class AnilistService {
                 }
             }
         `;
-        const data = await this.request<SearchResponse>(query);
+        const data = await this.request<OptionsSearchResponse>(query);
 
-        return data?.Page?.media?.map(this.mapSearchResult) ?? [];
+        return data?.Page?.media?.map(this.mapSearchResultOptions) ?? [];
     };
 
     private getInfo = async (id: string): Promise<any[]> => {
@@ -99,7 +113,29 @@ export default class AnilistService {
     }
 
     private getRecommendations = async (id: string): Promise<any[]> => {
-        return [];
+        const query = `
+            query {
+                Media(id: ${id}) {
+                    recommendations {
+                        edges {
+                            node {
+                                mediaRecommendation {
+                                    id
+                                    title {
+                                        romaji
+                                        english
+                                    }
+                                    type
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        `;
+
+        const data = await this.request<RecommendationsSearchResponse>(query);
+        return data?.Media?.recommendations?.edges.map(this.mapSearchResultRecommendations) ?? [];
     }
 
     public handle = async (method: string, query: Query): Promise<unknown> => {
